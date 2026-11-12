@@ -1,0 +1,7 @@
+image:
+  repository: sorteios
+  tag: local
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 80
