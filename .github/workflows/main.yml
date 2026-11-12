@@ -33,7 +33,7 @@ jobs:
         env:
           IMAGE: ${{ steps.image.outputs.repository }}:${{ github.sha }}
         run: |
-          docker build -t "$IMAGE" .
+          docker build --provenance=false --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" -t "$IMAGE" .
           docker push "$IMAGE"
       - name: Criar cluster Kind temporário
         uses: helm/kind-action@v1.12.0
