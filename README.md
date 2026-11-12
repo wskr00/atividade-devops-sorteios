@@ -33,7 +33,7 @@ Os limites são inclusivos; `min > max` retorna 400 e valores não inteiros reto
 
 ## 3. GitHub Actions, GHCR e Kind
 
-Crie um repositório GitHub vazio e, dentro desta pasta, execute (substitua a URL):
+O projeto já está em um [repositório privado no GitHub](https://github.com/wskr00/atividade-devops-sorteios), com [execução validada](https://github.com/wskr00/atividade-devops-sorteios/actions/runs/43288731141). Para começar em outro repositório, crie-o vazio e, dentro de uma cópia sem `.git`, execute (substitua a URL):
 
 ```bash
 git init -b main
@@ -72,11 +72,11 @@ A API grava uma linha JSON por requisição em um volume compartilhado; o Filebe
 ### Dashboard no Kibana
 
 1. Abra **Stack Management → Data Views → Create data view**. Nome e padrão: `sorteios-*`; campo de tempo: `timestamp`. Salve. Se o padrão não aparecer, gere tráfego, aguarde alguns segundos e verifique `docker compose logs filebeat` e o `_count` acima.
-2. Em **Discover**, escolha `sorteios-*`, período **Last 15 minutes** e adicione as colunas `timestamp`, `method`, `route`, `status`, `duration_ms` e `version`. Clique **Save**, nomeie `Logs recentes`.
+2. Em **Discover**, selecione `sorteios-*`, clique **Try ES|QL** e substitua a consulta por `FROM sorteios-* | KEEP timestamp, method, route, status, duration_ms, version | SORT timestamp DESC | LIMIT 50`. Execute com **Ctrl+Enter** e confirme que os resultados aparecem; clique **Save** e nomeie `Logs recentes`. Esta tabela mostra os 50 eventos mais recentes de todos os índices, independentemente do seletor de tempo do dashboard. A busca tradicional do Discover apresentou erro ao ser incorporada no Kibana 8.17.4; a consulta ES|QL foi validada como alternativa.
 3. Em **Dashboard → Create dashboard → Add from library**, adicione `Logs recentes`.
 4. Clique **Create visualization** (Lens); selecione o data view `sorteios-*`. Para contagem por status, escolha gráfico de barras, eixo horizontal `status` com agregação **Top values**, eixo vertical **Count of records**. Salve como `Requisições por status` e retorne ao dashboard.
 5. Crie outra visualização Lens: gráfico de linha, eixo horizontal `timestamp` com **Date histogram**, eixo vertical `duration_ms` com agregação **Average**. Salve como `Tempo médio de resposta (ms)` e adicione ao dashboard.
-6. Ajuste o período para **Last 15 minutes**, clique em **Save**, nomeie `Observabilidade de sorteios` e capture um print real mostrando os três painéis e os eventos 200, 400 e 422. Se necessário, atualize o dashboard depois de gerar tráfego novamente.
+6. Ajuste o período para **Last 15 minutes**, clique em **Save**, nomeie `Observabilidade de sorteios` e capture um print real mostrando os três painéis e os eventos 200, 400 e 422. Se necessário, atualize o dashboard depois de gerar tráfego novamente. Neste computador, o [dashboard já criado](http://localhost:5601/app/dashboards#/view/f74aafb9-5654-4784-8301-2ba130cc16b0) pode ser aberto enquanto a stack estiver ativa; em outra instalação siga os passos acima.
 
 Para parar os serviços sem apagar dados: `docker compose down`. Para apagar também logs e índices desta demonstração: `docker compose down -v`. Para diagnosticar: `docker compose logs --tail=100 api filebeat elasticsearch kibana`.
 
